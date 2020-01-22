@@ -17,18 +17,20 @@ namespace API
         public static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
-            using(var scope = host.Services.CreateScope())
+            using (var scope = host.Services.CreateScope())
             {
                 var Services = scope.ServiceProvider;
-                try{
+                try
+                {
                     var context = Services.GetRequiredService<DataContext>();
                     context.Database.Migrate();
+                    Seed.SeedData(context);
 
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     var log = Services.GetRequiredService<ILogger<Program>>();
-                    log.LogError(ex,"Error occured during migration");
+                    log.LogError(ex, "Error occured during migration");
                 }
                 host.Run();
 
