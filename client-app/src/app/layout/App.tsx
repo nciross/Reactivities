@@ -50,7 +50,7 @@ const App = () => {
 
   return (
     <Fragment>
-      <NavBar openCreateForm={hundleOpenCreateForm} />>
+      <NavBar openCreateForm={hundleOpenCreateForm} />
       <Container style={{ marginTop: "7em" }}>
         <ActivityDashboard
           activities={activities}
