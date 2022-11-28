@@ -1,23 +1,16 @@
+using API.Extensions;
+using Application.Activities;
+using Application.Core;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 // Add services to the container.
-// DBContext
-builder.Services.AddDbContext<DataContext>(opt=>{
-    opt.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
-});
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddCors(opt=>{
-    opt.AddPolicy("CorsPolicy",policy=>{
-       policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
-    });
-
-});
+// Add Application services
+builder.Services.AddApplicationServices(configuration);
 var app = builder.Build();
 
 // Execute Migration and Seed data when run application
