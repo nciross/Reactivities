@@ -4,18 +4,33 @@ import NavBar from './NavBar';
 import ActivityDashboard from '../../features/activities/ActivitiyDashboard';
 import { Activity } from '../models/activity';
 import axios from 'axios';
-
+import agent from '../api/agent';
+import LoadingComponent from './LoadingComponent';
+import { v4 as uuidv4 } from 'uuid';
 function App() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [selectedActivity, setSelectedActivity] = useState<Activity | undefined>(undefined);
   const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   useEffect(() => {
-    axios.get<Activity[]>("http://localhost:5000/api/activities").then(response => {
-      setActivities(response.data)
-    })
+    setLoading(true);
+    agent.Activities.list().then(response => {
+      response.forEach(activity => {
+        activity.date = activity.date.split('T')[0];
+      })
+      setActivities(response);
+      setLoading(false);
+
+    });
   }, [])
   function hundleSelectActivity(id: string) {
-    setSelectedActivity(activities.find(x => x.id == id))
+    // setSelectedActivity(activities.find(x => x.id == id))
+    agent.Activities.details(id).then((response) => {
+      response.date = response.date.split('T')[0];
+      setSelectedActivity(response);
+
+    });
   }
   function hundleCancelSelectActivity() {
     setSelectedActivity(undefined);
@@ -26,16 +41,32 @@ function App() {
   }
   function hundleFormClose() { setEditMode(false) }
   function hundleCerateOrEditActivity(activity: Activity) {
-    activity.id ? setActivities([...activities.filter(x => x.id != activity.id), activity])
-      : setActivities([...activities, { ...activity, id: uuid() }]);
+    setSubmitting(true);
+    if (activity.id) {
+      agent.Activities.update(activity).then(() => {
+        setActivities([...activities.filter(x => x.id != activity.id), activity])
+      });
+    } else {
+      activity.id = uuidv4();
+      agent.Activities.create(activity).then(() => {
+        setActivities([...activities.filter(x => x.id != activity.id), activity])
+      });
+    }
     setEditMode(false);
     setSelectedActivity(activity);
+    setSubmitting(false);
   }
   function hundleDeleteActivity(id: string) {
-    setActivities([...activities.filter(x => x.id != id)])
-    setEditMode(false);
-    setSelectedActivity(undefined);
+    setSubmitting(true);
+    agent.Activities.delete(id).then(() => {
+      setActivities([...activities.filter(x => x.id != id)])
+      setEditMode(false);
+      setSelectedActivity(undefined);
+      setSubmitting(false);
+    });
+
   }
+  if (loading) return <LoadingComponent inverted={true} content='Load app...' />
   return (
     <>
       <NavBar formOpen={hundleFormOpen} />
@@ -50,6 +81,7 @@ function App() {
           formClose={hundleFormClose}
           createOrEdit={hundleCerateOrEditActivity}
           deleteActivity={hundleDeleteActivity}
+          submitting={submitting}
         />
       </Container>
     </>
@@ -57,7 +89,4 @@ function App() {
 }
 
 export default App;
-function uuid(): string {
-  throw new Error('Function not implemented.');
-}
 
