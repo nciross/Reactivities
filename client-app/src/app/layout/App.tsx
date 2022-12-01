@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Container } from 'semantic-ui-react';
 import NavBar from './NavBar';
 import ActivityDashboard from '../../features/activities/ActivitiyDashboard';
@@ -15,11 +15,7 @@ function App() {
     <>
       <NavBar />
       <Container style={{ marginTop: '7em' }}>
-        <ActivityDashboard
-          createOrEdit={hundleCerateOrEditActivity}
-          deleteActivity={hundleDeleteActivity}
-          submitting={submitting}
-        />
+        <ActivityDashboard />
       </Container>
     </>
   );

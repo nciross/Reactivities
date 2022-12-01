@@ -1,9 +1,10 @@
+import { observer } from 'mobx-react-lite';
 import React from 'react'
 import { Button, Card, Image } from 'semantic-ui-react'
 import LoadingComponent from '../../../app/layout/LoadingComponent';
 import { useStore } from '../../../app/stores/store';
 
-export default function ActivityDetails() {
+export default observer(function ActivityDetails() {
     const { activityStore } = useStore();
     const { selectedActivity: activity, openForm, cancelSelectActivity } = activityStore;
     if (!activity) return <LoadingComponent />;
@@ -25,4 +26,4 @@ export default function ActivityDetails() {
             </Button.Group>
         </Card.Content>
     </Card>)
-}
+})
